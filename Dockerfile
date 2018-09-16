@@ -4,8 +4,9 @@ MAINTAINER vovik0134@gmail.com
 
 ARG BRANCH
 
-ENV PATH /usr/local/pgsql/bin:$PATH
-ENV PGDATA /usr/local/pgsql/data
+ENV PGSQL /usr/local/pgsql
+ENV PATH "$PGSQL/bin":$PATH
+ENV PGDATA "$PGSQL/data"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -27,14 +28,14 @@ RUN apt-get update \
     && make \
     && make install \
     && adduser postgres \
-    && mkdir /usr/local/pgsql/data \
-    && chown -R postgres /usr/local/pgsql \
+    && mkdir "$PGDATA" \
+    && chown -R postgres "$PGSQL" \
     # install postgres_fdw
     # && cd /postgres/contrib/postgres_fdw \
     # && make \
-    # && cp postgres_fdw.control /usr/local/pgsql/share/extension/ \
-    # && cp postgres_fdw--1.0.sql /usr/local/pgsql/share/extension/ \
-    # && cp postgres_fdw.so /usr/local/pgsql/lib/ \
+    # && cp postgres_fdw.control "$PGSQL/share/extension/" \
+    # && cp postgres_fdw--1.0.sql "$PGSQL/share/extension/" \
+    # && cp postgres_fdw.so "$PGSQL/lib/" \
     # cleanup
     && rm -rf /postgres \
     && apt-get remove -y \
@@ -57,6 +58,5 @@ USER postgres
 # init pgdata
 RUN initdb -D "$PGDATA" \
     && echo "host all all 0.0.0.0/0 trust" > "$PGDATA/pg_hba.conf"
-
 
 CMD ["postgres", "-h 0.0.0.0"]
